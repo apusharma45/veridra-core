@@ -1,0 +1,28 @@
+[project]
+name = "veridra-core"
+version = "0.1.0"
+description = "AI verification and evaluation engine for LLM applications"
+authors = [
+  { name = "Veridra Labs" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+  "typer",
+  "pydantic",
+  "pyyaml",
+  "rich",
+  "httpx"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[project.scripts]
+veridra = "veridra.cli:main"
