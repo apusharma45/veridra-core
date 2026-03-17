@@ -1,0 +1,8 @@
+suite: fail-demo
+provider: openai
+model: gpt-4.1-mini
+cases:
+  - id: wrong-fact
+    input: "Who discovered gravity?"
+    graders: [correctness]
+    expected_contains: ["Galileo"]

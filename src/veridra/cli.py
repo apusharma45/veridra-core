@@ -8,6 +8,9 @@ import yaml
 from pydantic import ValidationError
 from rich import print
 
+from veridra.engine.runner import run_suite
+from veridra.reporters.console import print_suite_report
+from veridra.reporters.json import write_json_report
 from veridra.schemas.suite import SuiteSchema
 
 app = typer.Typer()
@@ -43,11 +46,40 @@ def _render_validation_errors(exc: ValidationError) -> None:
 
 
 @app.command()
-def run(file: str):
+def run(
+    file: str,
+    output: str = typer.Option(
+        "veridra-results.json",
+        "--output",
+        "-o",
+        help="Path for JSON result output.",
+    ),
+):
     """
     Run a Veridra evaluation suite.
     """
-    print(f"[bold green]Running suite:[/bold green] {file}")
+    path = Path(file)
+    try:
+        suite = _load_suite_from_yaml(path)
+    except ValidationError as exc:
+        _render_validation_errors(exc)
+        raise typer.Exit(code=2)
+    except ValueError as exc:
+        print(f"[bold red]Validation failed:[/bold red] {exc}")
+        raise typer.Exit(code=2)
+
+    try:
+        result = run_suite(suite)
+        output_path = Path(output)
+        write_json_report(result, output_path)
+    except Exception as exc:
+        print(f"[bold red]Runtime failure:[/bold red] {exc}")
+        raise typer.Exit(code=3)
+
+    print_suite_report(result)
+    print(f"[bold]JSON report:[/bold] {output_path}")
+    if result.failed > 0:
+        raise typer.Exit(code=1)
 
 @app.command()
 def validate(file: str):

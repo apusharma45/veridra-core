@@ -1,0 +1,28 @@
+{
+  "suite": "fail-demo",
+  "provider": "openai",
+  "model": "gpt-4.1-mini",
+  "started_at": "2026-03-17T13:02:20.125397Z",
+  "ended_at": "2026-03-17T13:02:20.125478Z",
+  "passed": 0,
+  "failed": 1,
+  "results": [
+    {
+      "id": "wrong-fact",
+      "input": "Who discovered gravity?",
+      "output": "Isaac Newton discovered gravity.",
+      "pass_": false,
+      "grader_results": [
+        {
+          "grader": "correctness",
+          "pass": false,
+          "details": [
+            "expected_contains['Galileo']: failed"
+          ]
+        }
+      ],
+      "errors": [],
+      "latency_ms": 0
+    }
+  ]
+}
