@@ -1,7 +1,0 @@
-suite: bad-suite
-provider: openai
-model: gpt-4.1-mini
-cases:
-  - id: bad-1
-    input: test prompt
-    graders: [correctness]

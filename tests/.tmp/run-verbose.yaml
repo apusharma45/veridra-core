@@ -1,8 +1,0 @@
-suite: run-verbose
-provider: openai
-model: gpt-4.1-mini
-cases:
-  - id: fact-1
-    input: Who discovered gravity?
-    graders: [correctness]
-    expected_contains: [Newton]

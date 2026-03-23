@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+import json
 
 import typer
 import yaml
@@ -12,6 +13,7 @@ from rich import print
 from veridra.engine.runner import run_suite
 from veridra.reporters.console import print_suite_report
 from veridra.reporters.json import write_json_report
+from veridra.schemas.result import SuiteResultSchema
 from veridra.schemas.suite import SuiteSchema
 
 app = typer.Typer()
@@ -45,6 +47,25 @@ def _render_validation_errors(exc: ValidationError) -> None:
         location = ".".join(str(item) for item in error.get("loc", []))
         message = error.get("msg", "invalid value")
         print(f"- [red]{location}[/red]: {message}")
+
+
+def _load_result_from_json(path: Path) -> SuiteResultSchema:
+    try:
+        content = path.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise ValueError(f"results file not found: {path}") from exc
+    except OSError as exc:
+        raise ValueError(f"unable to read results file: {path} ({exc})") from exc
+
+    try:
+        raw_data: Any = json.loads(content)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"malformed JSON in {path}: {exc}") from exc
+
+    if not isinstance(raw_data, dict):
+        raise ValueError("results JSON must be a top-level mapping/object")
+
+    return SuiteResultSchema.model_validate(raw_data)
 
 
 @app.command()
@@ -148,6 +169,32 @@ def validate(
                 f"  - case={case.id} graders={','.join(case.graders)} "
                 f"expected_behavior={case.expected_behavior or '-'}"
             )
+
+
+@app.command()
+def report(
+    file: str,
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed report output.",
+    ),
+):
+    """
+    Render a report from an existing JSON result file.
+    """
+    path = Path(file)
+    try:
+        result = _load_result_from_json(path)
+    except ValidationError as exc:
+        _render_validation_errors(exc)
+        raise typer.Exit(code=2)
+    except ValueError as exc:
+        print(f"[bold red]Validation failed:[/bold red] {exc}")
+        raise typer.Exit(code=2)
+
+    print_suite_report(result, verbose=verbose)
 
 def main():
     app()
