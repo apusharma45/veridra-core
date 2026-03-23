@@ -1,0 +1,12 @@
+suite: run-fail-fast
+provider: openai
+model: gpt-4.1-mini
+cases:
+  - id: first-fail
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Galileo]
+  - id: second-pass
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]

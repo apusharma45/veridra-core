@@ -13,7 +13,9 @@ dependencies = [
   "pydantic",
   "pyyaml",
   "rich",
-  "httpx"
+  "httpx",
+  "openai",
+  "python-dotenv"
 ]
 
 [project.optional-dependencies]

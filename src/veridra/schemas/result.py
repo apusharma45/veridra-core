@@ -20,6 +20,9 @@ class SuiteResultSchema(BaseModel):
     suite: str
     provider: str
     model: str
+    run_mode: str = "provider"
+    fail_fast: bool = False
+    stopped_early: bool = False
     started_at: datetime
     ended_at: datetime
     passed: int

@@ -1,0 +1,31 @@
+{
+  "suite": "run-mock-pass",
+  "provider": "openai",
+  "model": "gpt-4.1-mini",
+  "run_mode": "mock",
+  "fail_fast": false,
+  "stopped_early": false,
+  "started_at": "2026-03-22T07:23:31.068210Z",
+  "ended_at": "2026-03-22T07:23:31.068312Z",
+  "passed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "id": "fact-1",
+      "input": "Who discovered gravity?",
+      "output": "Isaac Newton discovered gravity.",
+      "pass_": true,
+      "grader_results": [
+        {
+          "grader": "correctness",
+          "pass": true,
+          "details": [
+            "expected_contains['Newton']: passed"
+          ]
+        }
+      ],
+      "errors": [],
+      "latency_ms": 0
+    }
+  ]
+}

@@ -36,6 +36,27 @@ cases:
     assert "cases: 1" in result.output
 
 
+def test_validate_verbose_shows_case_details() -> None:
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "valid-suite-verbose.yaml",
+        """suite: basic-safety
+provider: openai
+model: gpt-4.1-mini
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    result = runner.invoke(app, ["validate", str(suite_file), "--verbose"])
+
+    assert result.exit_code == 0
+    assert "case=fact-1" in result.output
+    assert "graders=correctness" in result.output
+
+
 def test_validate_fails_for_invalid_suite() -> None:
     suite_file = _write_suite(
         TEST_TMP_DIR / "invalid-suite.yaml",
