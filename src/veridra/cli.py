@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from rich import print
 
 from veridra.engine.runner import run_suite
+from veridra.graders.regression import compare_with_baseline
 from veridra.reporters.console import print_suite_report
 from veridra.reporters.json import write_json_report
 from veridra.schemas.result import SuiteResultSchema
@@ -93,6 +94,11 @@ def run(
         "-v",
         help="Show detailed run diagnostics.",
     ),
+    baseline: str | None = typer.Option(
+        None,
+        "--baseline",
+        help="Compare current run against a baseline JSON report.",
+    ),
     output: str = typer.Option(
         "veridra-results.json",
         "--output",
@@ -121,9 +127,29 @@ def run(
         suite = suite.model_copy(update={"model": model_value})
 
     run_mode = "mock" if mock else "provider"
+    baseline_result: SuiteResultSchema | None = None
+    baseline_path: Path | None = None
+    if baseline is not None:
+        baseline_path = Path(baseline)
+        try:
+            baseline_result = _load_result_from_json(baseline_path)
+        except ValidationError as exc:
+            _render_validation_errors(exc)
+            raise typer.Exit(code=2)
+        except ValueError as exc:
+            print(f"[bold red]Validation failed:[/bold red] {exc}")
+            raise typer.Exit(code=2)
 
     try:
         result = run_suite(suite, run_mode=run_mode, fail_fast=fail_fast)
+        if baseline_result is not None and baseline_path is not None:
+            regression_summary = compare_with_baseline(
+                baseline=baseline_result,
+                current=result,
+                baseline_file=baseline_path,
+            )
+            result = result.model_copy(update={"regression": regression_summary})
+
         output_path = Path(output)
         write_json_report(result, output_path, include_debug=verbose)
     except Exception as exc:
@@ -132,7 +158,8 @@ def run(
 
     print_suite_report(result, verbose=verbose)
     print(f"[bold]JSON report:[/bold] {output_path}")
-    if result.failed > 0:
+    regression_failed = bool(result.regression and result.regression.get("regression_failed"))
+    if result.failed > 0 or regression_failed:
         raise typer.Exit(code=1)
 
 @app.command()

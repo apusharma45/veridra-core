@@ -28,3 +28,4 @@ class SuiteResultSchema(BaseModel):
     passed: int
     failed: int
     results: list[CaseResultSchema]
+    regression: dict[str, Any] | None = None
