@@ -12,7 +12,7 @@ from rich import print
 
 from veridra.engine.runner import run_suite
 from veridra.graders.regression import compare_with_baseline
-from veridra.reporters.console import print_suite_report
+from veridra.reporters.console import print_regression_summary, print_suite_report
 from veridra.reporters.json import write_json_report
 from veridra.schemas.result import SuiteResultSchema
 from veridra.schemas.suite import SuiteSchema
@@ -222,6 +222,42 @@ def report(
         raise typer.Exit(code=2)
 
     print_suite_report(result, verbose=verbose)
+
+
+@app.command()
+def compare(
+    baseline: str,
+    current: str,
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed comparison findings.",
+    ),
+):
+    """
+    Compare baseline and current JSON result files for regressions.
+    """
+    baseline_path = Path(baseline)
+    current_path = Path(current)
+    try:
+        baseline_result = _load_result_from_json(baseline_path)
+        current_result = _load_result_from_json(current_path)
+    except ValidationError as exc:
+        _render_validation_errors(exc)
+        raise typer.Exit(code=2)
+    except ValueError as exc:
+        print(f"[bold red]Validation failed:[/bold red] {exc}")
+        raise typer.Exit(code=2)
+
+    regression = compare_with_baseline(
+        baseline=baseline_result,
+        current=current_result,
+        baseline_file=baseline_path,
+    )
+    print_regression_summary(regression, verbose=verbose)
+    if regression.get("regression_failed"):
+        raise typer.Exit(code=1)
 
 def main():
     app()

@@ -5,6 +5,27 @@ from rich import print
 from veridra.schemas.result import SuiteResultSchema
 
 
+def print_regression_summary(regression: dict[str, object], verbose: bool = False) -> None:
+    state = "FAILED" if regression.get("regression_failed") else "PASSED"
+    state_color = "red" if regression.get("regression_failed") else "green"
+    print(f"[bold]Regression:[/bold] [{state_color}]{state}[/{state_color}]")
+    print(f"  baseline: {regression.get('baseline_file')}")
+    print(f"  compared: {regression.get('compared_count')}")
+    print(f"  missing_in_current: {regression.get('missing_in_current_count')}")
+    print(f"  new_in_current: {regression.get('new_in_current_count')}")
+    print(f"  output_drift: {regression.get('output_drift_count')}")
+    print(f"  pass_to_fail: {regression.get('pass_to_fail_count')}")
+    if verbose:
+        findings = regression.get("findings", [])
+        if findings:
+            print("  findings:")
+            for finding in findings:
+                print(
+                    f"    - {finding.get('severity')} {finding.get('type')} "
+                    f"{finding.get('case_id')}: {finding.get('message')}"
+                )
+
+
 def print_suite_report(result: SuiteResultSchema, verbose: bool = False) -> None:
     print(f"[bold]Suite:[/bold] {result.suite}")
     print(f"[bold]Provider:[/bold] {result.provider}")
@@ -42,23 +63,5 @@ def print_suite_report(result: SuiteResultSchema, verbose: bool = False) -> None
     print(f"[bold]Failed:[/bold] {result.failed}")
     print(f"[bold]Score:[/bold] {score:.1f}%")
     if result.regression:
-        regression = result.regression
         print("")
-        state = "FAILED" if regression.get("regression_failed") else "PASSED"
-        state_color = "red" if regression.get("regression_failed") else "green"
-        print(f"[bold]Regression:[/bold] [{state_color}]{state}[/{state_color}]")
-        print(f"  baseline: {regression.get('baseline_file')}")
-        print(f"  compared: {regression.get('compared_count')}")
-        print(f"  missing_in_current: {regression.get('missing_in_current_count')}")
-        print(f"  new_in_current: {regression.get('new_in_current_count')}")
-        print(f"  output_drift: {regression.get('output_drift_count')}")
-        print(f"  pass_to_fail: {regression.get('pass_to_fail_count')}")
-        if verbose:
-            findings = regression.get("findings", [])
-            if findings:
-                print("  findings:")
-                for finding in findings:
-                    print(
-                        f"    - {finding.get('severity')} {finding.get('type')} "
-                        f"{finding.get('case_id')}: {finding.get('message')}"
-                    )
+        print_regression_summary(result.regression, verbose=verbose)
