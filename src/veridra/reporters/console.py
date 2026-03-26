@@ -10,6 +10,8 @@ def print_regression_summary(regression: dict[str, object], verbose: bool = Fals
     state_color = "red" if regression.get("regression_failed") else "green"
     print(f"[bold]Regression:[/bold] [{state_color}]{state}[/{state_color}]")
     print(f"  baseline: {regression.get('baseline_file')}")
+    if "fail_on_drift" in regression:
+        print(f"  fail_on_drift: {regression.get('fail_on_drift')}")
     print(f"  compared: {regression.get('compared_count')}")
     print(f"  missing_in_current: {regression.get('missing_in_current_count')}")
     print(f"  new_in_current: {regression.get('new_in_current_count')}")
@@ -45,6 +47,7 @@ def print_suite_report(result: SuiteResultSchema, verbose: bool = False) -> None
         print(f"{marker} {case.id}  {grader_statuses}")
         if verbose:
             print(f"  latency_ms: {case.latency_ms}")
+            print(f"  retry_count: {case.retry_count}")
             for grader_result in case.grader_results:
                 details = grader_result.get("details", [])
                 if details:

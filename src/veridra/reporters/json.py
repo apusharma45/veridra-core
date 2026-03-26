@@ -23,6 +23,7 @@ def write_json_report(
 
             case_payload["debug"] = {
                 "latency_ms": case_payload.get("latency_ms"),
+                "retry_count": case_payload.get("retry_count", 0),
                 "grader_details": grader_details,
                 "errors": list(case_payload.get("errors", [])),
             }

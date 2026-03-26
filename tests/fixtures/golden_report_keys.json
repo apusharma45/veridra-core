@@ -1,0 +1,27 @@
+{
+  "top_level_keys": [
+    "schema_version",
+    "suite",
+    "provider",
+    "model",
+    "run_mode",
+    "fail_fast",
+    "stopped_early",
+    "started_at",
+    "ended_at",
+    "passed",
+    "failed",
+    "results",
+    "regression"
+  ],
+  "case_level_keys": [
+    "id",
+    "input",
+    "output",
+    "pass_",
+    "grader_results",
+    "errors",
+    "latency_ms",
+    "retry_count"
+  ]
+}

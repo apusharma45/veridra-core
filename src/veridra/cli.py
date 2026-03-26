@@ -65,6 +65,14 @@ def _load_result_from_json(path: Path) -> SuiteResultSchema:
 
     if not isinstance(raw_data, dict):
         raise ValueError("results JSON must be a top-level mapping/object")
+    schema_version = raw_data.get("schema_version", "1.0")
+    supported = SuiteResultSchema.SUPPORTED_SCHEMA_VERSIONS
+    if schema_version not in supported:
+        supported_versions = ", ".join(sorted(supported))
+        raise ValueError(
+            f"unsupported schema_version '{schema_version}'. "
+            f"Supported versions: {supported_versions}"
+        )
 
     return SuiteResultSchema.model_validate(raw_data)
 
@@ -88,6 +96,19 @@ def run(
         "--fail-fast",
         help="Stop execution after first failed case.",
     ),
+    timeout_ms: int | None = typer.Option(
+        None,
+        "--timeout-ms",
+        min=1,
+        help="Provider request timeout in milliseconds.",
+    ),
+    retries: int = typer.Option(
+        0,
+        "--retries",
+        min=0,
+        max=3,
+        help="Retry count for transient provider failures (0-3).",
+    ),
     verbose: bool = typer.Option(
         False,
         "--verbose",
@@ -98,6 +119,11 @@ def run(
         None,
         "--baseline",
         help="Compare current run against a baseline JSON report.",
+    ),
+    regression_fail_on_drift: bool = typer.Option(
+        False,
+        "--regression-fail-on-drift",
+        help="Treat passing output drift as a hard regression when baseline is provided.",
     ),
     output: str = typer.Option(
         "veridra-results.json",
@@ -141,12 +167,19 @@ def run(
             raise typer.Exit(code=2)
 
     try:
-        result = run_suite(suite, run_mode=run_mode, fail_fast=fail_fast)
+        result = run_suite(
+            suite,
+            run_mode=run_mode,
+            fail_fast=fail_fast,
+            timeout_ms=timeout_ms,
+            retries=retries,
+        )
         if baseline_result is not None and baseline_path is not None:
             regression_summary = compare_with_baseline(
                 baseline=baseline_result,
                 current=result,
                 baseline_file=baseline_path,
+                fail_on_drift=regression_fail_on_drift,
             )
             result = result.model_copy(update={"regression": regression_summary})
 

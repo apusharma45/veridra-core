@@ -7,7 +7,7 @@ from typing import Literal
 from veridra.graders.correctness import grade_correctness
 from veridra.graders.safety import grade_safety
 from veridra.providers.mock import generate as generate_mock_response
-from veridra.providers.openai import generate as generate_openai_response
+from veridra.providers.openai import OpenAIProviderError, generate as generate_openai_response
 from veridra.schemas.case import CaseSchema
 from veridra.schemas.result import CaseResultSchema, SuiteResultSchema
 from veridra.schemas.suite import SuiteSchema
@@ -16,23 +16,64 @@ from veridra.schemas.suite import SuiteSchema
 RunMode = Literal["provider", "mock"]
 
 
-def _generate_output(provider: str, input_text: str, model: str, run_mode: RunMode) -> str:
+def _generate_output(
+    provider: str,
+    input_text: str,
+    model: str,
+    run_mode: RunMode,
+    timeout_ms: int | None,
+) -> str:
     if run_mode == "mock":
         return generate_mock_response(input_text=input_text)
 
     if provider == "openai":
-        return generate_openai_response(input_text=input_text, model=model)
+        if timeout_ms is None:
+            return generate_openai_response(input_text=input_text, model=model)
+        return generate_openai_response(
+            input_text=input_text,
+            model=model,
+            timeout_ms=timeout_ms,
+        )
     raise RuntimeError(f"unsupported provider at runtime: {provider}")
 
 
-def _run_case(case: CaseSchema, provider: str, model: str, run_mode: RunMode) -> CaseResultSchema:
+def _run_case(
+    case: CaseSchema,
+    provider: str,
+    model: str,
+    run_mode: RunMode,
+    timeout_ms: int | None,
+    retries: int,
+) -> CaseResultSchema:
     start = perf_counter()
-    output = _generate_output(
-        provider=provider,
-        input_text=case.input,
-        model=model,
-        run_mode=run_mode,
-    )
+    retry_count = 0
+    while True:
+        try:
+            output = _generate_output(
+                provider=provider,
+                input_text=case.input,
+                model=model,
+                run_mode=run_mode,
+                timeout_ms=timeout_ms,
+            )
+            break
+        except OpenAIProviderError as exc:
+            if exc.timeout:
+                latency_ms = int((perf_counter() - start) * 1000)
+                return CaseResultSchema(
+                    id=case.id,
+                    input=case.input,
+                    output="",
+                    pass_=False,
+                    grader_results=[],
+                    errors=[str(exc)],
+                    latency_ms=latency_ms,
+                    retry_count=retry_count,
+                )
+            if exc.transient and retry_count < retries:
+                retry_count += 1
+                continue
+            raise
 
     grader_results: list[dict[str, object]] = []
     errors: list[str] = []
@@ -60,6 +101,7 @@ def _run_case(case: CaseSchema, provider: str, model: str, run_mode: RunMode) ->
         grader_results=grader_results,
         errors=errors,
         latency_ms=latency_ms,
+        retry_count=retry_count,
     )
 
 
@@ -67,13 +109,22 @@ def run_suite(
     suite: SuiteSchema,
     run_mode: RunMode = "provider",
     fail_fast: bool = False,
+    timeout_ms: int | None = None,
+    retries: int = 0,
 ) -> SuiteResultSchema:
     started_at = datetime.now(timezone.utc)
 
     results: list[CaseResultSchema] = []
     stopped_early = False
     for case in suite.cases:
-        case_result = _run_case(case, provider=suite.provider, model=suite.model, run_mode=run_mode)
+        case_result = _run_case(
+            case,
+            provider=suite.provider,
+            model=suite.model,
+            run_mode=run_mode,
+            timeout_ms=timeout_ms,
+            retries=retries,
+        )
         results.append(case_result)
         if fail_fast and not case_result.pass_:
             stopped_early = True

@@ -9,6 +9,7 @@ def compare_with_baseline(
     baseline: SuiteResultSchema,
     current: SuiteResultSchema,
     baseline_file: Path,
+    fail_on_drift: bool = False,
 ) -> dict[str, object]:
     baseline_by_id = {case.id: case for case in baseline.results}
     current_by_id = {case.id: case for case in current.results}
@@ -51,7 +52,7 @@ def compare_with_baseline(
                 {
                     "type": "output_drift",
                     "case_id": case_id,
-                    "severity": "soft",
+                    "severity": "hard" if fail_on_drift else "soft",
                     "message": "Case output changed while still passing.",
                 }
             )
@@ -68,10 +69,15 @@ def compare_with_baseline(
         )
 
     missing_case_ids = sorted(set(baseline_by_id) - set(current_by_id))
-    regression_failed = bool(pass_to_fail_count > 0 or missing_case_ids)
+    regression_failed = bool(
+        pass_to_fail_count > 0
+        or missing_case_ids
+        or (fail_on_drift and output_drift_count > 0)
+    )
 
     return {
         "baseline_file": str(baseline_file),
+        "fail_on_drift": fail_on_drift,
         "regression_failed": regression_failed,
         "compared_count": len(set(baseline_by_id) & set(current_by_id)),
         "missing_in_current_count": len(missing_case_ids),
