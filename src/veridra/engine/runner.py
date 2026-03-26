@@ -6,14 +6,23 @@ from typing import Literal
 
 from veridra.graders.correctness import grade_correctness
 from veridra.graders.safety import grade_safety
+from veridra.providers.base import ProviderError
 from veridra.providers.mock import generate as generate_mock_response
-from veridra.providers.openai import OpenAIProviderError, generate as generate_openai_response
+from veridra.providers.ollama import generate as generate_ollama_response
+from veridra.providers.openai import generate as generate_openai_response
 from veridra.schemas.case import CaseSchema
 from veridra.schemas.result import CaseResultSchema, SuiteResultSchema
 from veridra.schemas.suite import SuiteSchema
 
 
 RunMode = Literal["provider", "mock"]
+
+
+def _provider_registry() -> dict[str, object]:
+    return {
+        "openai": generate_openai_response,
+        "ollama": generate_ollama_response,
+    }
 
 
 def _generate_output(
@@ -26,14 +35,11 @@ def _generate_output(
     if run_mode == "mock":
         return generate_mock_response(input_text=input_text)
 
-    if provider == "openai":
+    generate = _provider_registry().get(provider)
+    if generate is not None:
         if timeout_ms is None:
-            return generate_openai_response(input_text=input_text, model=model)
-        return generate_openai_response(
-            input_text=input_text,
-            model=model,
-            timeout_ms=timeout_ms,
-        )
+            return generate(input_text=input_text, model=model)
+        return generate(input_text=input_text, model=model, timeout_ms=timeout_ms)
     raise RuntimeError(f"unsupported provider at runtime: {provider}")
 
 
@@ -57,7 +63,7 @@ def _run_case(
                 timeout_ms=timeout_ms,
             )
             break
-        except OpenAIProviderError as exc:
+        except ProviderError as exc:
             if exc.timeout:
                 latency_ms = int((perf_counter() - start) * 1000)
                 return CaseResultSchema(

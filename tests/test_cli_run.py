@@ -304,3 +304,55 @@ cases:
 
     assert result.exit_code == 3
     assert "Runtime failure:" in result.output
+
+def test_run_with_ollama_provider_returns_zero(monkeypatch) -> None:
+    monkeypatch.setattr(
+        runner_module,
+        "generate_ollama_response",
+        lambda input_text, model: "Isaac Newton discovered gravity.",
+    )
+
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-ollama-pass.yaml",
+        """suite: run-ollama-pass
+provider: ollama
+model: llama3.2
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-ollama-pass-result.json"
+    result = runner.invoke(app, ["run", str(suite_file), "--output", str(output_file)])
+
+    assert result.exit_code == 0
+    assert output_file.exists()
+
+
+def test_run_with_ollama_provider_error_returns_three(monkeypatch) -> None:
+    def _raise_provider_error(input_text: str, model: str) -> str:
+        raise RuntimeError("ollama down")
+
+    monkeypatch.setattr(runner_module, "generate_ollama_response", _raise_provider_error)
+
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-ollama-error.yaml",
+        """suite: run-ollama-error
+provider: ollama
+model: llama3.2
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-ollama-error-result.json"
+    result = runner.invoke(app, ["run", str(suite_file), "--output", str(output_file)])
+
+    assert result.exit_code == 3
+    assert "Runtime failure:" in result.output

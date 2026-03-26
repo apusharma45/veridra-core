@@ -3,18 +3,11 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from veridra.providers.base import ProviderError
 
-class OpenAIProviderError(RuntimeError):
-    def __init__(
-        self,
-        message: str,
-        *,
-        transient: bool = False,
-        timeout: bool = False,
-    ) -> None:
-        super().__init__(message)
-        self.transient = transient
-        self.timeout = timeout
+
+class OpenAIProviderError(ProviderError):
+    pass
 
 
 def _extract_text_from_response(response: Any) -> str:

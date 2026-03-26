@@ -92,3 +92,65 @@ def test_runner_fail_fast_stops_after_first_failure(monkeypatch) -> None:
     assert [case.id for case in result.results] == ["first-fail"]
     assert result.failed == 1
     assert result.stopped_early is True
+
+
+def test_runner_ollama_retry_transient_then_passes(monkeypatch) -> None:
+    from veridra.providers.base import ProviderError
+
+    state = {"calls": 0}
+
+    def _flaky(input_text: str, model: str) -> str:
+        state["calls"] += 1
+        if state["calls"] == 1:
+            raise ProviderError("temporary issue", transient=True)
+        return "Isaac Newton discovered gravity."
+
+    monkeypatch.setattr(runner_module, "generate_ollama_response", _flaky)
+
+    suite = SuiteSchema(
+        suite="ollama-retry-check",
+        provider="ollama",
+        model="llama3.2",
+        cases=[
+            CaseSchema(
+                id="fact-pass",
+                input="Who discovered gravity?",
+                graders=["correctness"],
+                expected_contains=["newton"],
+            ),
+        ],
+    )
+
+    result = run_suite(suite, retries=1)
+
+    assert result.passed == 1
+    assert result.results[0].retry_count == 1
+
+
+def test_runner_ollama_timeout_marks_case_failed(monkeypatch) -> None:
+    from veridra.providers.base import ProviderError
+
+    def _timeout(input_text: str, model: str) -> str:
+        raise ProviderError("timed out", transient=True, timeout=True)
+
+    monkeypatch.setattr(runner_module, "generate_ollama_response", _timeout)
+
+    suite = SuiteSchema(
+        suite="ollama-timeout-check",
+        provider="ollama",
+        model="llama3.2",
+        cases=[
+            CaseSchema(
+                id="fact-fail",
+                input="Who discovered gravity?",
+                graders=["correctness"],
+                expected_contains=["newton"],
+            ),
+        ],
+    )
+
+    result = run_suite(suite)
+
+    assert result.failed == 1
+    assert result.results[0].pass_ is False
+    assert result.results[0].output == ""

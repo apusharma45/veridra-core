@@ -4,7 +4,7 @@ from pydantic import BaseModel, field_validator, model_validator
 
 from veridra.schemas.case import CaseSchema
 
-KNOWN_PROVIDERS = {"openai"}
+KNOWN_PROVIDERS = {"openai", "ollama"}
 
 
 class SuiteSchema(BaseModel):

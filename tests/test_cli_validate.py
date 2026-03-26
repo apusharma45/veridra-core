@@ -85,3 +85,23 @@ def test_validate_fails_for_missing_file() -> None:
     assert result.exit_code == 2
     assert "Validation failed:" in result.output
     assert "suite file not found" in result.output
+
+
+def test_validate_accepts_ollama_provider() -> None:
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "valid-ollama-suite.yaml",
+        """suite: ollama-basic
+provider: ollama
+model: llama3.2
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    result = runner.invoke(app, ["validate", str(suite_file)])
+
+    assert result.exit_code == 0
+    assert "Suite is valid." in result.output
