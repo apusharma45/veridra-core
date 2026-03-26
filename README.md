@@ -21,6 +21,31 @@ AI verification and evaluation engine for LLM applications
   - `python -m veridra.cli compare out/baseline.json out/current.json`
   - `python -m veridra.cli compare out/baseline.json out/current.json --verbose`
 
+## First 5 Minutes
+
+1. Create a starter suite:
+   - `python -m veridra.cli init quickstart.yaml --template basic --provider openai`
+2. Validate it:
+   - `python -m veridra.cli validate quickstart.yaml --verbose`
+3. Run in mock mode:
+   - `python -m veridra.cli run quickstart.yaml --mock --output out/quickstart.json`
+4. Render report later:
+   - `python -m veridra.cli report out/quickstart.json --verbose`
+5. Compare two runs:
+   - `python -m veridra.cli compare out/baseline.json out/current.json`
+
+## Discoverability Commands
+
+- List built-in suite examples and copy-ready commands:
+  - `python -m veridra.cli examples`
+
+## Shell Completion
+
+- Install completion for your current shell:
+  - `python -m veridra.cli --install-completion`
+- Show completion script manually:
+  - `python -m veridra.cli --show-completion`
+
 ## CI Quickstart (Mock-First)
 
 - Validate suite:
