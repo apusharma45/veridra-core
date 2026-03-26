@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import datetime, timezone
 from time import perf_counter
 from typing import Literal
@@ -14,11 +15,10 @@ from veridra.schemas.case import CaseSchema
 from veridra.schemas.result import CaseResultSchema, SuiteResultSchema
 from veridra.schemas.suite import SuiteSchema
 
-
 RunMode = Literal["provider", "mock"]
 
 
-def _provider_registry() -> dict[str, object]:
+def _provider_registry() -> dict[str, Callable[..., str]]:
     return {
         "openai": generate_openai_response,
         "ollama": generate_ollama_response,

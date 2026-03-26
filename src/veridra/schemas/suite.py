@@ -36,7 +36,7 @@ class SuiteSchema(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def _case_ids_must_be_unique(self) -> "SuiteSchema":
+    def _case_ids_must_be_unique(self) -> SuiteSchema:
         seen: set[str] = set()
         duplicates: set[str] = set()
         for case in self.cases:

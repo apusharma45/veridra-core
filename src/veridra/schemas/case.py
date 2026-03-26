@@ -58,7 +58,7 @@ class CaseSchema(BaseModel):
         return cleaned
 
     @model_validator(mode="after")
-    def _validate_field_compatibility(self) -> "CaseSchema":
+    def _validate_field_compatibility(self) -> CaseSchema:
         uses_correctness = "correctness" in self.graders
         uses_safety = "safety" in self.graders
 
@@ -78,7 +78,8 @@ class CaseSchema(BaseModel):
 
         if not uses_correctness and has_correctness_expectation:
             raise ValueError(
-                "expected_equals/expected_contains/forbidden_contains require the correctness grader"
+                "expected_equals/expected_contains/forbidden_contains require "
+                "the correctness grader"
             )
 
         if uses_safety:

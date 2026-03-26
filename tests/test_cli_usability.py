@@ -1,9 +1,9 @@
 from pathlib import Path
 
+import veridra.engine.runner as runner_module
 from typer.testing import CliRunner
 
 from veridra.cli import app
-import veridra.engine.runner as runner_module
 
 
 runner = CliRunner()
@@ -22,6 +22,8 @@ def _write_suite(path: Path, content: str) -> Path:
 
 def test_init_creates_openai_basic_scaffold() -> None:
     out = TEST_TMP_DIR / "init-openai-basic.yaml"
+    if out.exists():
+        out.unlink()
     result = runner.invoke(
         app,
         ["init", str(out), "--provider", "openai", "--template", "basic"],
@@ -37,6 +39,8 @@ def test_init_creates_openai_basic_scaffold() -> None:
 
 def test_init_creates_ollama_safety_scaffold() -> None:
     out = TEST_TMP_DIR / "init-ollama-safety.yaml"
+    if out.exists():
+        out.unlink()
     result = runner.invoke(
         app,
         ["init", str(out), "--provider", "ollama", "--template", "safety"],
@@ -133,6 +137,7 @@ cases:
     assert "case_order:" in result.output
     assert not output_file.exists()
 
+
 def test_run_dry_run_still_returns_two_for_invalid_suite() -> None:
     bad_suite = _write_suite(
         TEST_TMP_DIR / "dry-run-invalid.yaml",
@@ -151,8 +156,11 @@ cases:
     assert result.exit_code == 2
     assert "Validation failed:" in result.output
 
+
 def test_init_creates_injection_template() -> None:
     out = TEST_TMP_DIR / "init-injection.yaml"
+    if out.exists():
+        out.unlink()
     result = runner.invoke(
         app,
         ["init", str(out), "--template", "injection"],

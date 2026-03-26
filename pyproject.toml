@@ -2,12 +2,18 @@
 name = "veridra-core"
 version = "0.1.0"
 description = "AI verification and evaluation engine for LLM applications"
-authors = [
-  { name = "Veridra Labs" }
-]
+authors = [{ name = "Veridra Labs" }]
 readme = "README.md"
 requires-python = ">=3.10"
-
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Software Development :: Testing",
+]
 dependencies = [
   "typer",
   "pydantic",
@@ -15,16 +21,44 @@ dependencies = [
   "rich",
   "httpx",
   "openai",
-  "python-dotenv"
+  "python-dotenv",
 ]
 
+[project.urls]
+Homepage = "https://github.com/veridra-labs/veridra-core"
+Repository = "https://github.com/veridra-labs/veridra-core"
+Issues = "https://github.com/veridra-labs/veridra-core/issues"
+
 [project.optional-dependencies]
-dev = [
-  "pytest"
-]
+dev = ["pytest", "ruff", "mypy", "build"]
+
+[project.scripts]
+veridra = "veridra.cli:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
-[project.scripts]
-veridra = "veridra.cli:main"
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.10"
+strict = false
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = false
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = ["yaml", "openai"]
+ignore_missing_imports = true

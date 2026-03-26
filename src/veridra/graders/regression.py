@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from veridra.schemas.result import CaseResultSchema, SuiteResultSchema
+from veridra.schemas.result import SuiteResultSchema
 
 
 def compare_with_baseline(
@@ -70,9 +70,7 @@ def compare_with_baseline(
 
     missing_case_ids = sorted(set(baseline_by_id) - set(current_by_id))
     regression_failed = bool(
-        pass_to_fail_count > 0
-        or missing_case_ids
-        or (fail_on_drift and output_drift_count > 0)
+        pass_to_fail_count > 0 or missing_case_ids or (fail_on_drift and output_drift_count > 0)
     )
 
     return {

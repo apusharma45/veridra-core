@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
-import json
 
 import typer
 import yaml
@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from pydantic import ValidationError
 from rich import print
 
-from veridra.engine.runner import run_suite
+from veridra.engine.runner import RunMode, run_suite
 from veridra.graders.regression import compare_with_baseline
 from veridra.reporters.console import print_regression_summary, print_suite_report
 from veridra.reporters.json import write_json_report
@@ -195,7 +195,7 @@ def run(
         "-o",
         help="Path for JSON result output.",
     ),
-):
+) -> None:
     """
     Run a Veridra evaluation suite.
 
@@ -221,7 +221,7 @@ def run(
             raise typer.Exit(code=2)
         suite = suite.model_copy(update={"model": model_value})
 
-    run_mode = "mock" if mock else "provider"
+    run_mode: RunMode = "mock" if mock else "provider"
     if dry_run:
         _print_dry_run_plan(
             suite,
@@ -274,6 +274,7 @@ def run(
     if result.failed > 0 or regression_failed:
         raise typer.Exit(code=1)
 
+
 @app.command()
 def validate(
     file: str,
@@ -283,7 +284,7 @@ def validate(
         "-v",
         help="Show detailed validation output.",
     ),
-):
+) -> None:
     """
     Validate a test suite file.
 
@@ -319,9 +320,7 @@ def validate(
             if case.expected_contains and len(case.expected_contains) == 1:
                 token = case.expected_contains[0]
                 if len(token) < 6:
-                    warnings.append(
-                        "weak correctness signal: single short expected_contains token"
-                    )
+                    warnings.append("weak correctness signal: single short expected_contains token")
 
             print(
                 f"  - case={case.id} graders={','.join(case.graders)} "
@@ -359,7 +358,7 @@ def init(
         "--force",
         help="Overwrite existing file if it already exists.",
     ),
-):
+) -> None:
     """
     Create a starter suite YAML file.
     """
@@ -407,7 +406,7 @@ def init(
 
 
 @app.command()
-def examples():
+def examples() -> None:
     """
     Show built-in example suites and ready commands.
     """
@@ -431,7 +430,7 @@ def report(
         "-v",
         help="Show detailed report output.",
     ),
-):
+) -> None:
     """
     Render a report from an existing JSON result file.
 
@@ -461,7 +460,7 @@ def compare(
         "-v",
         help="Show detailed comparison findings.",
     ),
-):
+) -> None:
     """
     Compare baseline and current JSON result files for regressions.
 
@@ -489,8 +488,10 @@ def compare(
     if regression.get("regression_failed"):
         raise typer.Exit(code=1)
 
-def main():
+
+def main() -> None:
     app()
+
 
 if __name__ == "__main__":
     main()

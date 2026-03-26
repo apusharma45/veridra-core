@@ -46,6 +46,16 @@ AI verification and evaluation engine for LLM applications
 - Show completion script manually:
   - `python -m veridra.cli --show-completion`
 
+## Development Checks
+
+Run these before opening a PR:
+
+- `ruff check .`
+- `ruff format --check .`
+- `mypy src/veridra`
+- `python -m pytest -q -p no:cacheprovider --basetemp=tests/.pytest_tmp`
+- `python -m build`
+
 ## CI Quickstart (Mock-First)
 
 - Validate suite:

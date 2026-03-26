@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from rich import print
 
 from veridra.schemas.result import SuiteResultSchema
@@ -18,7 +20,12 @@ def print_regression_summary(regression: dict[str, object], verbose: bool = Fals
     print(f"  output_drift: {regression.get('output_drift_count')}")
     print(f"  pass_to_fail: {regression.get('pass_to_fail_count')}")
     if verbose:
-        findings = regression.get("findings", [])
+        findings_obj = regression.get("findings", [])
+        findings: list[dict[str, Any]]
+        if isinstance(findings_obj, list):
+            findings = [item for item in findings_obj if isinstance(item, dict)]
+        else:
+            findings = []
         if findings:
             print("  findings:")
             for finding in findings:
@@ -41,8 +48,7 @@ def print_suite_report(result: SuiteResultSchema, verbose: bool = False) -> None
     for case in result.results:
         marker = "[green]PASS[/green]" if case.pass_ else "[red]FAIL[/red]"
         grader_statuses = ", ".join(
-            f"{item['grader']}={'pass' if item['pass'] else 'fail'}"
-            for item in case.grader_results
+            f"{item['grader']}={'pass' if item['pass'] else 'fail'}" for item in case.grader_results
         )
         print(f"{marker} {case.id}  {grader_statuses}")
         if verbose:

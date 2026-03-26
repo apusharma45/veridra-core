@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-quality:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: Mypy
+        run: mypy src/veridra
+
+      - name: Run tests
+        run: python -m pytest -q -p no:cacheprovider --basetemp=tests/.pytest_tmp
+
+      - name: Smoke CLI checks
+        run: |
+          python -m veridra.cli validate examples/basic_suite.yaml
+          python -m veridra.cli run examples/basic_suite.yaml --mock --output out/ci-current.json
+          python -m veridra.cli report out/ci-current.json
+          python -m veridra.cli compare out/ci-current.json out/ci-current.json
+
+      - name: Build package
+        run: python -m build
+
+      - name: Install built wheel and smoke help
+        run: |
+          python -m pip install --upgrade pip
+          pip install dist/*.whl
+          python -m veridra.cli --help

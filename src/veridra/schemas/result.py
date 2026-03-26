@@ -34,7 +34,7 @@ class SuiteResultSchema(BaseModel):
     regression: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def _validate_schema_version(self) -> "SuiteResultSchema":
+    def _validate_schema_version(self) -> SuiteResultSchema:
         if self.schema_version not in self.SUPPORTED_SCHEMA_VERSIONS:
             raise ValueError(
                 f"unsupported schema_version '{self.schema_version}'. "
