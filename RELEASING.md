@@ -1,34 +1,31 @@
 # Releasing veridra-core
 
-This project uses GitHub tag-based releases.
+This project uses tag-triggered GitHub Releases (`v*.*.*`).
 
-## Pre-release Checklist
+## Canonical Release Steps
 
-Run locally:
-
-- `ruff check .`
-- `ruff format --check .`
-- `mypy src/veridra`
-- `python -m pytest -q -p no:cacheprovider --basetemp=tests/.pytest_tmp`
-- `python -m build`
-
-## Create a Release
-
-1. Update version in `pyproject.toml`.
-2. Commit the version bump.
-3. Create and push a semver tag:
+1. Complete all items in `RELEASE_CHECKLIST.md`.
+2. Bump version in `pyproject.toml`.
+3. Commit the version bump.
+4. Tag and push:
    - `git tag vX.Y.Z`
    - `git push origin vX.Y.Z`
 
-## What Happens Automatically
+## What the Release Workflow Does
 
-When a tag like `v1.2.3` is pushed:
-
-- GitHub Actions runs quality checks.
-- Build artifacts (`.whl`, `.tar.gz`) are produced.
-- A GitHub Release is created with generated notes.
-- Artifacts are attached to that release.
+- Runs quality gates (`ruff`, `mypy`, `pytest`).
+- Builds wheel + sdist.
+- Verifies artifacts exist before publish.
+- Creates GitHub Release with generated notes.
+- Uploads `dist/*.whl` and `dist/*.tar.gz`.
 
 ## Dry Run Recommendation
 
-Before tagging production, test the workflow in a sandbox branch/repo with a temporary tag.
+Use a sandbox branch/repo and temporary semver tag before production release.
+
+## Windows Troubleshooting
+
+- If `veridra` command is not found, run:
+  - `python -m veridra.cli --help`
+- If script entry points are not on PATH, add:
+  - `%APPDATA%\Python\Python3xx\Scripts`

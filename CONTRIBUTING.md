@@ -1,32 +1,31 @@
 # Contributing to veridra-core
 
-Thanks for contributing to Veridra Core.
-
 ## Local Setup
 
 1. Create and activate a virtual environment.
-2. Install package + dev dependencies:
+2. Install dependencies:
    - `pip install -e .[dev]`
 
-## Required Checks Before PR
+## Canonical Developer Checks
 
-Run all of these locally:
+Run all checks before opening a PR:
 
-- `ruff check .`
-- `ruff format --check .`
+- `ruff check src`
+- `ruff format --check src`
 - `mypy src/veridra`
 - `python -m pytest -q -p no:cacheprovider --basetemp=tests/.pytest_tmp`
 - `python -m build`
 
-## CLI Smoke Check
+## Canonical Quickstart Smoke
 
-- `python -m veridra.cli validate examples/basic_suite.yaml`
-- `python -m veridra.cli run examples/basic_suite.yaml --mock --output out/local-smoke.json`
-- `python -m veridra.cli report out/local-smoke.json`
-- `python -m veridra.cli compare out/local-smoke.json out/local-smoke.json`
+- `python -m veridra.cli init quickstart.yaml --template basic --provider openai`
+- `python -m veridra.cli validate quickstart.yaml --verbose`
+- `python -m veridra.cli run quickstart.yaml --mock --output out/quickstart.json`
+- `python -m veridra.cli report out/quickstart.json --verbose`
+- `python -m veridra.cli compare out/quickstart.json out/quickstart.json`
 
 ## Pull Request Notes
 
-- Keep changes focused and test-backed.
-- Update README/docs when behavior changes.
-- Do not commit secrets or `.env` values.
+- Keep changes focused and tested.
+- Update docs when behavior changes.
+- Never commit secrets or real `.env` values.
