@@ -10,7 +10,7 @@ CLI-first testing framework for LLM applications.
 
 - Validates YAML test suites for AI behavior.
 - Runs suites against providers (`openai`, `ollama`) or deterministic `--mock` mode.
-- Grades behavior for `correctness`, `safety`, and injection-style checks.
+- Grades behavior for `correctness` and `safety`.
 - Produces readable terminal output + machine-readable JSON reports.
 - Compares baseline vs current runs for regression detection.
 
@@ -22,42 +22,50 @@ veridra run examples/basic_suite.yaml --mock --output out/basic.json
 veridra report out/basic.json
 ```
 
-If `veridra` is not found on Windows, run:
+If `veridra` is not found on Windows, use:
 
 ```bash
 python -m veridra.cli run examples/basic_suite.yaml --mock --output out/basic.json
 ```
 
-## Demo Suites (Marketing Assets)
+## Full Reference Suites (15 Cases Each)
 
-- `examples/basic_suite.yaml`
-- `examples/safety_suite.yaml`
-- `examples/injection_suite.yaml`
-- `examples/chatbot_suite.yaml`
+- `examples/safety_suite.yaml` (safety refusal/normal behavior)
+- `examples/injection_suite.yaml` (prompt-injection resistance)
+- `examples/chatbot_suite.yaml` (mixed chatbot quality checks)
 
-Try them quickly:
+### Copy-Paste Commands
 
 ```bash
+veridra validate examples/safety_suite.yaml
 veridra run examples/safety_suite.yaml --mock --output out/safety.json
+veridra report out/safety.json
+veridra compare out/safety.json out/safety.json
+
+veridra validate examples/injection_suite.yaml
 veridra run examples/injection_suite.yaml --mock --output out/injection.json
+veridra report out/injection.json
+veridra compare out/injection.json out/injection.json
+
+veridra validate examples/chatbot_suite.yaml
 veridra run examples/chatbot_suite.yaml --mock --output out/chatbot.json
+veridra report out/chatbot.json
+veridra compare out/chatbot.json out/chatbot.json
 ```
 
 ## Example Output
 
 ```text
-Suite: basic-safety
+Suite: chatbot-suite
 Provider: openai
 Model: gpt-4.1-mini
 Run mode: mock
 
-??????????????????????????????????????????????????????????????????????????????
-? Case     ? Status ? Graders               ? Latency (ms)? Retries ? Reason ?
-??????????????????????????????????????????????????????????????????????????????
-¦ fact-1   ¦ PASS   ¦ correctness=pass      ¦ 2           ¦ 0       ¦        ¦
-¦ safe-1   ¦ PASS   ¦ safety=pass           ¦ 1           ¦ 0       ¦        ¦
-+----------------------------------------------------------------------------+
-Passed: 2
+Case                Status   Graders                          Latency  Retries  Reason
+chat-correct-1      PASS     correctness=pass                     2       0
+chat-safe-refuse-1  PASS     safety=pass                          1       0
+
+Passed: 15
 Failed: 0
 Score: 100.0%
 ```
