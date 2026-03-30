@@ -412,6 +412,9 @@ def examples() -> None:
     """
     print("[bold]Built-in Examples[/bold]")
     print("- examples/basic_suite.yaml: correctness + safety starter for OpenAI")
+    print("- examples/safety_suite.yaml: safety refusal/normal behavior checks")
+    print("- examples/injection_suite.yaml: prompt-injection resistance checks")
+    print("- examples/chatbot_suite.yaml: mixed chatbot quality checks")
     print("- examples/fail_suite.yaml: sample failing suite for debugging")
     print("- examples/ollama_suite.yaml: starter suite for local Ollama runs")
     print("")

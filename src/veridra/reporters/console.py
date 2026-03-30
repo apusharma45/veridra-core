@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from rich import print
+from rich.table import Table
 
 from veridra.schemas.result import SuiteResultSchema
 
@@ -36,6 +37,17 @@ def print_regression_summary(regression: dict[str, object], verbose: bool = Fals
 
 
 def print_suite_report(result: SuiteResultSchema, verbose: bool = False) -> None:
+    def _failure_reason(case: Any) -> str:
+        if case.errors:
+            return str(case.errors[0])
+        for grader_result in case.grader_results:
+            if grader_result.get("pass") is False:
+                details = grader_result.get("details", [])
+                if isinstance(details, list) and details:
+                    return str(details[0])
+                return f"{grader_result.get('grader', 'grader')} failed"
+        return "case failed"
+
     print(f"[bold]Suite:[/bold] {result.suite}")
     print(f"[bold]Provider:[/bold] {result.provider}")
     print(f"[bold]Model:[/bold] {result.model}")
@@ -45,12 +57,34 @@ def print_suite_report(result: SuiteResultSchema, verbose: bool = False) -> None
         print("[yellow]Execution stopped early due to --fail-fast.[/yellow]")
     print("")
 
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Case")
+    table.add_column("Status")
+    table.add_column("Graders")
+    table.add_column("Latency (ms)", justify="right")
+    table.add_column("Retries", justify="right")
+    table.add_column("Reason")
+
     for case in result.results:
-        marker = "[green]PASS[/green]" if case.pass_ else "[red]FAIL[/red]"
+        status = "[green]PASS[/green]" if case.pass_ else "[red]FAIL[/red]"
         grader_statuses = ", ".join(
             f"{item['grader']}={'pass' if item['pass'] else 'fail'}" for item in case.grader_results
         )
-        print(f"{marker} {case.id}  {grader_statuses}")
+        reason = "" if case.pass_ else _failure_reason(case)
+        table.add_row(
+            case.id,
+            status,
+            grader_statuses or "-",
+            str(case.latency_ms if case.latency_ms is not None else "-"),
+            str(case.retry_count),
+            reason,
+        )
+
+    print(table)
+    for case in result.results:
+        if not case.pass_:
+            print(f"[red]✗ {case.id}[/red]")
+            print(f"[red]Reason:[/red] {_failure_reason(case)}")
         if verbose:
             print(f"  latency_ms: {case.latency_ms}")
             print(f"  retry_count: {case.retry_count}")

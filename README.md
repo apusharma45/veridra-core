@@ -1,61 +1,90 @@
 # veridra-core
-AI verification and evaluation engine for LLM applications.
 
-## Run Modes
+![CI](https://img.shields.io/github/actions/workflow/status/veridra-labs/veridra-core/ci.yml?branch=main&label=ci)
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-- Real provider mode (default):
-  - `python -m veridra.cli run examples/basic_suite.yaml`
-  - Requires `OPENAI_API_KEY` for `provider: openai`
-- Ollama provider mode (local, quota-free):
-  - `python -m veridra.cli run examples/ollama_suite.yaml`
-  - Optional env: `OLLAMA_BASE_URL` (default: `http://localhost:11434`)
-- Mock mode (no API quota needed):
-  - `python -m veridra.cli run examples/basic_suite.yaml --mock`
+CLI-first testing framework for LLM applications.
 
-## Canonical Quickstart
+## What It Does
 
-1. Create suite:
-   - `python -m veridra.cli init quickstart.yaml --template basic --provider openai`
-2. Validate:
-   - `python -m veridra.cli validate quickstart.yaml --verbose`
-3. Run locally in mock mode:
-   - `python -m veridra.cli run quickstart.yaml --mock --output out/quickstart.json`
-4. Render report:
-   - `python -m veridra.cli report out/quickstart.json --verbose`
-5. Compare runs:
-   - `python -m veridra.cli compare out/quickstart.json out/quickstart.json`
+- Validates YAML test suites for AI behavior.
+- Runs suites against providers (`openai`, `ollama`) or deterministic `--mock` mode.
+- Grades behavior for `correctness`, `safety`, and injection-style checks.
+- Produces readable terminal output + machine-readable JSON reports.
+- Compares baseline vs current runs for regression detection.
+
+## 2-Minute Quick Start
+
+```bash
+pip install -e .
+veridra run examples/basic_suite.yaml --mock --output out/basic.json
+veridra report out/basic.json
+```
+
+If `veridra` is not found on Windows, run:
+
+```bash
+python -m veridra.cli run examples/basic_suite.yaml --mock --output out/basic.json
+```
+
+## Demo Suites (Marketing Assets)
+
+- `examples/basic_suite.yaml`
+- `examples/safety_suite.yaml`
+- `examples/injection_suite.yaml`
+- `examples/chatbot_suite.yaml`
+
+Try them quickly:
+
+```bash
+veridra run examples/safety_suite.yaml --mock --output out/safety.json
+veridra run examples/injection_suite.yaml --mock --output out/injection.json
+veridra run examples/chatbot_suite.yaml --mock --output out/chatbot.json
+```
+
+## Example Output
+
+```text
+Suite: basic-safety
+Provider: openai
+Model: gpt-4.1-mini
+Run mode: mock
+
+??????????????????????????????????????????????????????????????????????????????
+? Case     ? Status ? Graders               ? Latency (ms)? Retries ? Reason ?
+??????????????????????????????????????????????????????????????????????????????
+¦ fact-1   ¦ PASS   ¦ correctness=pass      ¦ 2           ¦ 0       ¦        ¦
+¦ safe-1   ¦ PASS   ¦ safety=pass           ¦ 1           ¦ 0       ¦        ¦
++----------------------------------------------------------------------------+
+Passed: 2
+Failed: 0
+Score: 100.0%
+```
+
+## Core Commands
+
+- `veridra validate <suite.yaml>`
+- `veridra run <suite.yaml> [--mock] [--model ...] [--output ...] [--verbose]`
+- `veridra report <results.json> [--verbose]`
+- `veridra compare <baseline.json> <current.json> [--verbose]`
+- `veridra init <path> [--provider ...] [--template ...]`
+- `veridra examples`
 
 ## Development Checks
 
-Run these before opening a PR:
+```bash
+ruff check src
+ruff format --check src
+mypy src/veridra
+python -m pytest -q -p no:cacheprovider --basetemp=tests/.pytest_tmp
+python -m build
+```
 
-- `ruff check src`
-- `ruff format --check src`
-- `mypy src/veridra`
-- `python -m pytest -q -p no:cacheprovider --basetemp=tests/.pytest_tmp`
-- `python -m build`
+## Contributing
 
-## Release Steps
+See `CONTRIBUTING.md`.
 
-1. Run `RELEASE_CHECKLIST.md` commands locally.
-2. Bump version in `pyproject.toml`.
-3. Commit version bump.
-4. Tag and push:
-   - `git tag vX.Y.Z`
-   - `git push origin vX.Y.Z`
+## Releasing
 
-## Windows Troubleshooting
-
-- If `veridra` command is not found after install, run via module:
-  - `python -m veridra.cli --help`
-- If scripts are not on PATH, add:
-  - `%APPDATA%\Python\Python3xx\Scripts`
-- If build/install fails due permissions, run terminal as user with write access to temp and project folders.
-
-## Discoverability
-
-- Built-in examples:
-  - `python -m veridra.cli examples`
-- Shell completion:
-  - `python -m veridra.cli --install-completion`
-  - `python -m veridra.cli --show-completion`
+See `RELEASING.md` and `RELEASE_CHECKLIST.md`.
