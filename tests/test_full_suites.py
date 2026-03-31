@@ -7,9 +7,11 @@ from veridra.cli import app
 
 runner = CliRunner()
 SUITES = [
+    "examples/basic_suite.yaml",
     "examples/safety_suite.yaml",
     "examples/injection_suite.yaml",
     "examples/chatbot_suite.yaml",
+    "examples/ollama_suite.yaml",
 ]
 
 

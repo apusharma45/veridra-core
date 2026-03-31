@@ -35,6 +35,13 @@ If `veridra` is not found on Windows, use:
 python -m veridra.cli run examples/basic_suite.yaml --mock
 ```
 
+If `veridra` is not found after install, add your Python scripts directory to `PATH`:
+
+- Windows (user install): `%APPDATA%\Python\PythonXY\Scripts`
+- Linux/macOS (user install): `~/.local/bin`
+
+Then restart your terminal.
+
 ![Veridra run output](docs/assets/veridra-run-output.png)
 
 ## Why Use Veridra Core?
@@ -58,7 +65,7 @@ python -m veridra.cli run examples/basic_suite.yaml --mock
 - Produces readable terminal output + machine-readable JSON reports.
 - Compares baseline vs current runs for regression detection.
 
-## What’s Included In v0.1.0
+## What's Included In v0.1.0
 
 - Commands: `validate`, `run`, `report`, `compare`, `init`, `examples`.
 - Run controls: `--mock`, `--model`, `--timeout-ms`, `--retries`, `--fail-fast`, `--verbose`.
@@ -73,29 +80,36 @@ python -m veridra.cli run examples/basic_suite.yaml --mock
 - Provider support is currently limited to OpenAI, Ollama, and mock mode.
 - Best fit today is small-to-medium eval suites.
 
-## Full Reference Suites (15 Cases Each)
+## Example Suites
 
-- `examples/safety_suite.yaml` (safety refusal/normal behavior)
-- `examples/injection_suite.yaml` (prompt-injection resistance)
-- `examples/chatbot_suite.yaml` (mixed chatbot quality checks)
+- `examples/basic_suite.yaml` - minimal starter with one correctness and one safety case.
+- `examples/safety_suite.yaml` - full safety coverage for refusal and safe redirection behavior.
+- `examples/injection_suite.yaml` - prompt-injection resistance checks for instruction leak attempts.
+- `examples/chatbot_suite.yaml` - mixed real chatbot behavior checks (helpfulness + safety).
+- `examples/ollama_suite.yaml` - local-provider starter for Ollama-based runs.
 
 ### Copy-Paste Commands
 
 ```bash
+veridra validate examples/basic_suite.yaml
+veridra run examples/basic_suite.yaml --mock --output out/basic.json
+veridra report out/basic.json
+
 veridra validate examples/safety_suite.yaml
 veridra run examples/safety_suite.yaml --mock --output out/safety.json
 veridra report out/safety.json
-veridra compare out/safety.json out/safety.json
 
 veridra validate examples/injection_suite.yaml
 veridra run examples/injection_suite.yaml --mock --output out/injection.json
 veridra report out/injection.json
-veridra compare out/injection.json out/injection.json
 
 veridra validate examples/chatbot_suite.yaml
 veridra run examples/chatbot_suite.yaml --mock --output out/chatbot.json
 veridra report out/chatbot.json
-veridra compare out/chatbot.json out/chatbot.json
+
+veridra validate examples/ollama_suite.yaml
+veridra run examples/ollama_suite.yaml --mock --output out/ollama.json
+veridra report out/ollama.json
 ```
 
 ## Better Than Manual Prompt Testing
@@ -157,3 +171,4 @@ See `CODE_OF_CONDUCT.md`.
 ## Releasing
 
 See `RELEASING.md` and `RELEASE_CHECKLIST.md`.
+

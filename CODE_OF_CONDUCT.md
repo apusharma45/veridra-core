@@ -32,7 +32,7 @@ This Code of Conduct applies in all project spaces, including issues, pull reque
 
 To report unacceptable behavior, contact:
 
-- `apusharma45@gmail.com`
+- `arapusharma45@gmail.com`
 
 All reports will be reviewed and addressed promptly and fairly.
 
