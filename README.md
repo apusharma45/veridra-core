@@ -4,7 +4,49 @@
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-CLI-first testing framework for LLM applications.
+CLI-first eval runner for LLM apps: validate suites, run tests, catch safety/regression issues.
+
+What it is: A CLI tool to test LLM behavior from YAML suites.  
+Why it matters: Replace manual prompt testing with repeatable checks in local dev and CI.  
+Run now: `pip install -e .` then `veridra run examples/basic_suite.yaml --mock`
+
+## 2-Minute Quick Start
+
+Install from GitHub:
+
+```bash
+pip install "git+https://github.com/apusharma45/veridra-core.git"
+```
+
+Or for local development:
+
+```bash
+pip install -e .
+veridra validate examples/basic_suite.yaml
+veridra run examples/basic_suite.yaml --mock
+veridra report veridra-results.json
+```
+
+If `veridra` is not found on Windows, use:
+
+```bash
+python -m veridra.cli run examples/basic_suite.yaml --mock
+```
+
+![Veridra run output](docs/assets/veridra-run-output.png)
+
+## Why Use Veridra Core?
+
+- Run deterministic, reusable eval suites instead of ad-hoc prompt checks.
+- Catch failures in correctness, safety, and regression before deployment.
+- Integrate eval checks into CI with machine-readable JSON reports.
+- Keep evaluation workflows consistent across developers and releases.
+
+## Who Is This For?
+
+- LLM app developers building chatbots, assistants, and RAG features.
+- QA and platform teams that need repeatable AI quality gates in CI.
+- Security/safety teams validating refusal behavior and injection resistance.
 
 ## What It Does
 
@@ -14,19 +56,20 @@ CLI-first testing framework for LLM applications.
 - Produces readable terminal output + machine-readable JSON reports.
 - Compares baseline vs current runs for regression detection.
 
-## 2-Minute Quick Start
+## What’s Included In v0.1.0
 
-```bash
-pip install -e .
-veridra run examples/basic_suite.yaml --mock --output out/basic.json
-veridra report out/basic.json
-```
+- Commands: `validate`, `run`, `report`, `compare`, `init`, `examples`.
+- Run controls: `--mock`, `--model`, `--timeout-ms`, `--retries`, `--fail-fast`, `--verbose`.
+- Providers: OpenAI, Ollama, and deterministic mock mode.
+- Regression gate support with baseline comparison and drift reporting.
+- JSON reports with schema versioning for reproducible workflows.
 
-If `veridra` is not found on Windows, use:
+## Limitations / Current Scope
 
-```bash
-python -m veridra.cli run examples/basic_suite.yaml --mock --output out/basic.json
-```
+- Grading is heuristic and rule-based, not a semantic truth engine.
+- Primary experience is CLI/local and CI-focused (no hosted dashboard).
+- Provider support is currently limited to OpenAI, Ollama, and mock mode.
+- Best fit today is small-to-medium eval suites.
 
 ## Full Reference Suites (15 Cases Each)
 
@@ -52,6 +95,10 @@ veridra run examples/chatbot_suite.yaml --mock --output out/chatbot.json
 veridra report out/chatbot.json
 veridra compare out/chatbot.json out/chatbot.json
 ```
+
+## Better Than Manual Prompt Testing
+
+Manual testing is slow, inconsistent, and hard to reproduce. Veridra Core uses deterministic suite definitions, repeatable automated runs, baseline regression checks, and machine-readable outputs so quality checks can run in CI like normal software tests.
 
 ## Example Output
 
