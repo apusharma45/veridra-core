@@ -3,16 +3,28 @@ name = "veridra-core"
 version = "0.1.0"
 description = "AI verification and evaluation engine for LLM applications"
 authors = [{ name = "Veridra Labs" }]
+maintainers = [{ name = "Apu Sharma", email = "apusharma45@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
+keywords = [
+  "llm",
+  "ai-evaluation",
+  "prompt-testing",
+  "safety-testing",
+  "regression-testing",
+  "cli",
+]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Topic :: Software Development :: Testing",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
 ]
 dependencies = [
   "typer",
@@ -25,9 +37,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/veridra-labs/veridra-core"
-Repository = "https://github.com/veridra-labs/veridra-core"
-Issues = "https://github.com/veridra-labs/veridra-core/issues"
+Homepage = "https://github.com/apusharma45/veridra-core"
+Repository = "https://github.com/apusharma45/veridra-core"
+Issues = "https://github.com/apusharma45/veridra-core/issues"
+Documentation = "https://github.com/apusharma45/veridra-core#readme"
+Changelog = "https://github.com/apusharma45/veridra-core/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff", "mypy", "build"]

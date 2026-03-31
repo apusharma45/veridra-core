@@ -1,6 +1,6 @@
 # veridra-core
 
-![CI](https://img.shields.io/github/actions/workflow/status/veridra-labs/veridra-core/ci.yml?branch=main&label=ci)
+![CI](https://img.shields.io/github/actions/workflow/status/apusharma45/veridra-core/ci.yml?branch=main&label=ci)
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -21,6 +21,8 @@ pip install "git+https://github.com/apusharma45/veridra-core.git"
 Or for local development:
 
 ```bash
+git clone https://github.com/apusharma45/veridra-core.git
+cd veridra-core
 pip install -e .
 veridra validate examples/basic_suite.yaml
 veridra run examples/basic_suite.yaml --mock
@@ -139,6 +141,18 @@ python -m build
 ## Contributing
 
 See `CONTRIBUTING.md`.
+
+## Changelog
+
+See `CHANGELOG.md`.
+
+## Security
+
+See `SECURITY.md`.
+
+## Code Of Conduct
+
+See `CODE_OF_CONDUCT.md`.
 
 ## Releasing
 
