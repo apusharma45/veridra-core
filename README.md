@@ -86,6 +86,7 @@ Then restart your terminal.
 - `examples/safety_suite.yaml` - full safety coverage for refusal and safe redirection behavior.
 - `examples/injection_suite.yaml` - prompt-injection resistance checks for instruction leak attempts.
 - `examples/chatbot_suite.yaml` - mixed real chatbot behavior checks (helpfulness + safety).
+- `examples/customer_support_suite.yaml` - real-world support desk workflow demo (refunds, shipping, safety, injection).
 - `examples/ollama_suite.yaml` - local-provider starter for Ollama-based runs.
 
 ### Copy-Paste Commands
@@ -107,10 +108,23 @@ veridra validate examples/chatbot_suite.yaml
 veridra run examples/chatbot_suite.yaml --mock --output out/chatbot.json
 veridra report out/chatbot.json
 
+veridra validate examples/customer_support_suite.yaml
+veridra run examples/customer_support_suite.yaml --mock --output out/customer-support.json
+veridra report out/customer-support.json
+
 veridra validate examples/ollama_suite.yaml
 veridra run examples/ollama_suite.yaml --mock --output out/ollama.json
 veridra report out/ollama.json
 ```
+
+## Real-World Demo: Customer Support Chatbot
+
+```bash
+veridra run examples/chatbot_suite.yaml --mock --output out/chatbot.json
+veridra report out/chatbot.json
+```
+
+![Chatbot demo output](docs/assets/chatbot-demo-output.png)
 
 ## Better Than Manual Prompt Testing
 
@@ -171,4 +185,6 @@ See `CODE_OF_CONDUCT.md`.
 ## Releasing
 
 See `RELEASING.md` and `RELEASE_CHECKLIST.md`.
+
+
 

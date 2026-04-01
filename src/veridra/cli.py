@@ -415,6 +415,7 @@ def examples() -> None:
     print("- examples/safety_suite.yaml: safety refusal/normal behavior checks")
     print("- examples/injection_suite.yaml: prompt-injection resistance checks")
     print("- examples/chatbot_suite.yaml: mixed chatbot quality checks")
+    print("- examples/customer_support_suite.yaml: real-world customer support demo")
     print("- examples/fail_suite.yaml: sample failing suite for debugging")
     print("- examples/ollama_suite.yaml: starter suite for local Ollama runs")
     print("")
@@ -498,3 +499,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

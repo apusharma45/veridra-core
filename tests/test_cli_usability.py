@@ -80,6 +80,7 @@ def test_examples_lists_expected_entries() -> None:
 
     assert result.exit_code == 0
     assert "examples/basic_suite.yaml" in result.output
+    assert "examples/customer_support_suite.yaml" in result.output
     assert "Run (mock)" in result.output
     assert "Run (provider)" in result.output
 
@@ -170,3 +171,4 @@ def test_init_creates_injection_template() -> None:
     content = _read(out)
     assert "forbidden_contains" in content
     assert "expected_behavior: answer_normally" in content
+

@@ -11,6 +11,7 @@ SUITES = [
     "examples/safety_suite.yaml",
     "examples/injection_suite.yaml",
     "examples/chatbot_suite.yaml",
+    "examples/customer_support_suite.yaml",
     "examples/ollama_suite.yaml",
 ]
 
