@@ -28,6 +28,15 @@ Run from repository root.
 - [ ] `git push origin v0.1.0`
 - [ ] Verify GitHub Release contains `.whl` and `.tar.gz` artifacts
 
+## 5) Trust Checks Before Public Post
+
+- [ ] Confirm CI is green on `main` (latest run passed).
+- [ ] Confirm GitHub Release notes exist for `vX.Y.Z`.
+- [ ] Confirm release has attached `.whl` and `.tar.gz` artifacts.
+- [ ] Confirm `LICENSE` is present and visible at repo root.
+- [ ] Confirm `.env.example` matches current provider setup.
+- [ ] Confirm no accidental runtime outputs or temp artifacts are tracked.
+
 ## Notes
 
 - If local provider quotas are unavailable, use mock mode for smoke checks.

@@ -51,6 +51,15 @@ Then restart your terminal.
 - Integrate eval checks into CI with machine-readable JSON reports.
 - Keep evaluation workflows consistent across developers and releases.
 
+## Why Veridra Core (vs Evals/Custom Scripts)?
+
+- Simpler local-first CLI workflow for daily development (`validate -> run -> report -> compare`).
+- YAML suite authoring keeps tests readable and shareable without writing test harness code.
+- Built-in reporting and baseline comparison are included by default.
+- Provider abstraction supports OpenAI, Ollama, and deterministic mock mode in one workflow.
+- Easy `--mock` mode makes demos, onboarding, and CI checks quota-safe.
+- Focused on practical small-team usage over heavyweight platform complexity.
+
 ## Who Is This For?
 
 - LLM app developers building chatbots, assistants, and RAG features.

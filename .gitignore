@@ -217,3 +217,8 @@ experiments/
 # temporary files
 tmp/
 temp/
+# runtime output artifacts
+out/
+
+# local temp folders created by tools
+pytest-cache-files-*/
