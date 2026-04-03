@@ -8,6 +8,7 @@ from typing import Literal
 from veridra.graders.correctness import grade_correctness
 from veridra.graders.safety import grade_safety
 from veridra.providers.base import ProviderError
+from veridra.providers.groq import generate as generate_groq_response
 from veridra.providers.mock import generate as generate_mock_response
 from veridra.providers.ollama import generate as generate_ollama_response
 from veridra.providers.openai import generate as generate_openai_response
@@ -22,6 +23,7 @@ def _provider_registry() -> dict[str, Callable[..., str]]:
     return {
         "openai": generate_openai_response,
         "ollama": generate_ollama_response,
+        "groq": generate_groq_response,
     }
 
 

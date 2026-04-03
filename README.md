@@ -69,7 +69,7 @@ Then restart your terminal.
 ## What It Does
 
 - Validates YAML test suites for AI behavior.
-- Runs suites against providers (`openai`, `ollama`) or deterministic `--mock` mode.
+- Runs suites against providers (`openai`, `ollama`, `groq`) or deterministic `--mock` mode.
 - Grades behavior for `correctness` and `safety`.
 - Produces readable terminal output + machine-readable JSON reports.
 - Compares baseline vs current runs for regression detection.
@@ -78,7 +78,7 @@ Then restart your terminal.
 
 - Commands: `validate`, `run`, `report`, `compare`, `init`, `examples`.
 - Run controls: `--mock`, `--model`, `--timeout-ms`, `--retries`, `--fail-fast`, `--verbose`.
-- Providers: OpenAI, Ollama, and deterministic mock mode.
+- Providers: OpenAI, Ollama, Groq, and deterministic mock mode.
 - Regression gate support with baseline comparison and drift reporting.
 - JSON reports with schema versioning for reproducible workflows.
 
@@ -86,7 +86,7 @@ Then restart your terminal.
 
 - Grading is heuristic and rule-based, not a semantic truth engine.
 - Primary experience is CLI/local and CI-focused (no hosted dashboard).
-- Provider support is currently limited to OpenAI, Ollama, and mock mode.
+- Provider support is currently limited to OpenAI, Ollama, Groq, and mock mode.
 - Best fit today is small-to-medium eval suites.
 
 ## Example Suites
@@ -97,6 +97,7 @@ Then restart your terminal.
 - `examples/chatbot_suite.yaml` - mixed real chatbot behavior checks (helpfulness + safety).
 - `examples/customer_support_suite.yaml` - real-world support desk workflow demo (refunds, shipping, safety, injection).
 - `examples/ollama_suite.yaml` - local-provider starter for Ollama-based runs.
+- `examples/groq_suite.yaml` - starter suite for Groq provider usage.
 
 ### Copy-Paste Commands
 
@@ -124,6 +125,10 @@ veridra report out/customer-support.json
 veridra validate examples/ollama_suite.yaml
 veridra run examples/ollama_suite.yaml --mock --output out/ollama.json
 veridra report out/ollama.json
+
+veridra validate examples/groq_suite.yaml
+veridra run examples/groq_suite.yaml --mock --output out/groq.json
+veridra report out/groq.json
 ```
 
 ## Real-World Demo: Customer Support Chatbot
@@ -159,7 +164,7 @@ Score: 100.0%
 ## Core Commands
 
 - `veridra validate <suite.yaml>`
-- `veridra run <suite.yaml> [--mock] [--model ...] [--output ...] [--verbose]`
+- `veridra run <suite.yaml> [--mock] [--provider ...] [--model ...] [--output ...] [--verbose]`
 - `veridra report <results.json> [--verbose]`
 - `veridra compare <baseline.json> <current.json> [--verbose]`
 - `veridra init <path> [--provider ...] [--template ...]`
@@ -194,6 +199,7 @@ See `CODE_OF_CONDUCT.md`.
 ## Releasing
 
 See `RELEASING.md` and `RELEASE_CHECKLIST.md`.
+
 
 
 

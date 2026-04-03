@@ -255,6 +255,111 @@ cases:
     assert payload["model"] == "gpt-4.1-mini"
 
 
+def test_run_provider_override_reflected_in_json(monkeypatch) -> None:
+    monkeypatch.setattr(
+        runner_module,
+        "generate_groq_response",
+        lambda input_text, model: "Isaac Newton discovered gravity.",
+    )
+
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-provider-override.yaml",
+        """suite: run-provider-override
+provider: openai
+model: gpt-4.1-mini
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-provider-override-result.json"
+    result = runner.invoke(
+        app,
+        ["run", str(suite_file), "--provider", "groq", "--output", str(output_file)],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert payload["provider"] == "groq"
+
+
+def test_run_without_provider_override_keeps_suite_provider(monkeypatch) -> None:
+    monkeypatch.setattr(runner_module, "generate_openai_response", _mock_openai_generate)
+
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-no-provider-override.yaml",
+        """suite: run-no-provider-override
+provider: openai
+model: gpt-4.1-mini
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-no-provider-override-result.json"
+    result = runner.invoke(app, ["run", str(suite_file), "--output", str(output_file)])
+
+    assert result.exit_code == 0
+    payload = json.loads(output_file.read_text(encoding="utf-8"))
+    assert payload["provider"] == "openai"
+
+
+def test_run_with_blank_provider_override_returns_validation_exit() -> None:
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-blank-provider-override.yaml",
+        """suite: run-blank-provider-override
+provider: openai
+model: gpt-4.1-mini
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-blank-provider-override-result.json"
+    result = runner.invoke(
+        app,
+        ["run", str(suite_file), "--provider", "   ", "--output", str(output_file)],
+    )
+
+    assert result.exit_code == 2
+    assert "Validation failed:" in result.output
+    assert "--provider cannot be empty" in result.output
+
+
+def test_run_with_unsupported_provider_override_returns_validation_exit() -> None:
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-bad-provider-override.yaml",
+        """suite: run-bad-provider-override
+provider: openai
+model: gpt-4.1-mini
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-bad-provider-override-result.json"
+    result = runner.invoke(
+        app,
+        ["run", str(suite_file), "--provider", "anthropic", "--output", str(output_file)],
+    )
+
+    assert result.exit_code == 2
+    assert "Validation failed:" in result.output
+    assert "--provider must be one of:" in result.output
+
+
 def test_run_with_blank_model_override_returns_validation_exit() -> None:
     suite_file = _write_suite(
         TEST_TMP_DIR / "run-blank-model-override.yaml",
@@ -352,6 +457,59 @@ cases:
     )
 
     output_file = TEST_TMP_DIR / "run-ollama-error-result.json"
+    result = runner.invoke(app, ["run", str(suite_file), "--output", str(output_file)])
+
+    assert result.exit_code == 3
+    assert "Runtime failure:" in result.output
+
+
+def test_run_with_groq_provider_returns_zero(monkeypatch) -> None:
+    monkeypatch.setattr(
+        runner_module,
+        "generate_groq_response",
+        lambda input_text, model: "Isaac Newton discovered gravity.",
+    )
+
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-groq-pass.yaml",
+        """suite: run-groq-pass
+provider: groq
+model: llama-3.1-8b-instant
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-groq-pass-result.json"
+    result = runner.invoke(app, ["run", str(suite_file), "--output", str(output_file)])
+
+    assert result.exit_code == 0
+    assert output_file.exists()
+
+
+def test_run_with_groq_provider_error_returns_three(monkeypatch) -> None:
+    def _raise_provider_error(input_text: str, model: str) -> str:
+        raise RuntimeError("groq down")
+
+    monkeypatch.setattr(runner_module, "generate_groq_response", _raise_provider_error)
+
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "run-groq-error.yaml",
+        """suite: run-groq-error
+provider: groq
+model: llama-3.1-8b-instant
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    output_file = TEST_TMP_DIR / "run-groq-error-result.json"
     result = runner.invoke(app, ["run", str(suite_file), "--output", str(output_file)])
 
     assert result.exit_code == 3

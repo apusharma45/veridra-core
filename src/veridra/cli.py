@@ -23,6 +23,7 @@ load_dotenv()
 DEFAULT_MODEL_BY_PROVIDER = {
     "openai": "gpt-4.1-mini",
     "ollama": "llama3.2",
+    "groq": "llama-3.1-8b-instant",
 }
 
 
@@ -139,6 +140,12 @@ def _print_dry_run_plan(
 @app.command()
 def run(
     file: str,
+    provider: str | None = typer.Option(
+        None,
+        "--provider",
+        "-p",
+        help="Override suite provider for this run (openai, ollama, or groq).",
+    ),
     model: str | None = typer.Option(
         None,
         "--model",
@@ -213,6 +220,20 @@ def run(
     except ValueError as exc:
         print(f"[bold red]Validation failed:[/bold red] {exc}")
         raise typer.Exit(code=2)
+
+    if provider is not None:
+        provider_value = provider.strip().lower()
+        if not provider_value:
+            print("[bold red]Validation failed:[/bold red] --provider cannot be empty")
+            raise typer.Exit(code=2)
+        if provider_value not in DEFAULT_MODEL_BY_PROVIDER:
+            supported = ", ".join(sorted(DEFAULT_MODEL_BY_PROVIDER))
+            print(
+                "[bold red]Validation failed:[/bold red] "
+                f"--provider must be one of: {supported}"
+            )
+            raise typer.Exit(code=2)
+        suite = suite.model_copy(update={"provider": provider_value})
 
     if model is not None:
         model_value = model.strip()
@@ -341,7 +362,7 @@ def init(
     provider: str = typer.Option(
         "openai",
         "--provider",
-        help="Suite provider (openai or ollama).",
+        help="Suite provider (openai, ollama, or groq).",
     ),
     model: str | None = typer.Option(
         None,
@@ -365,7 +386,7 @@ def init(
     provider_value = provider.strip().lower()
     template_value = template.strip().lower()
     if provider_value not in DEFAULT_MODEL_BY_PROVIDER:
-        print("[bold red]Validation failed:[/bold red] --provider must be openai or ollama")
+        print("[bold red]Validation failed:[/bold red] --provider must be openai, ollama, or groq")
         raise typer.Exit(code=2)
     if template_value not in {"basic", "safety", "injection"}:
         print(
@@ -418,6 +439,7 @@ def examples() -> None:
     print("- examples/customer_support_suite.yaml: real-world customer support demo")
     print("- examples/fail_suite.yaml: sample failing suite for debugging")
     print("- examples/ollama_suite.yaml: starter suite for local Ollama runs")
+    print("- examples/groq_suite.yaml: starter suite for Groq provider runs")
     print("")
     print("[bold]Quick Commands[/bold]")
     print("- Validate: python -m veridra.cli validate examples/basic_suite.yaml")

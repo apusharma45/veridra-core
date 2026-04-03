@@ -105,3 +105,23 @@ cases:
 
     assert result.exit_code == 0
     assert "Suite is valid." in result.output
+
+
+def test_validate_accepts_groq_provider() -> None:
+    suite_file = _write_suite(
+        TEST_TMP_DIR / "valid-groq-suite.yaml",
+        """suite: groq-basic
+provider: groq
+model: llama-3.1-8b-instant
+cases:
+  - id: fact-1
+    input: Who discovered gravity?
+    graders: [correctness]
+    expected_contains: [Newton]
+""",
+    )
+
+    result = runner.invoke(app, ["validate", str(suite_file)])
+
+    assert result.exit_code == 0
+    assert "Suite is valid." in result.output
