@@ -228,10 +228,7 @@ def run(
             raise typer.Exit(code=2)
         if provider_value not in DEFAULT_MODEL_BY_PROVIDER:
             supported = ", ".join(sorted(DEFAULT_MODEL_BY_PROVIDER))
-            print(
-                "[bold red]Validation failed:[/bold red] "
-                f"--provider must be one of: {supported}"
-            )
+            print(f"[bold red]Validation failed:[/bold red] --provider must be one of: {supported}")
             raise typer.Exit(code=2)
         suite = suite.model_copy(update={"provider": provider_value})
 
@@ -521,4 +518,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
