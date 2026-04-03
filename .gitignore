@@ -222,3 +222,6 @@ out/
 
 # local temp folders created by tools
 pytest-cache-files-*/
+
+# local planning docs
+local_docs/
