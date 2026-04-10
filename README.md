@@ -6,6 +6,9 @@
 
 CLI-first eval runner for LLM apps: validate suites, run tests, catch safety/regression issues.
 
+> CI integration note: Veridra Core is the evaluation engine (runner, schemas, graders, providers, JSON output).
+> GitHub-native CI UX (workflow templates, PR comments, automation wrapper) lives in `veridra-ci`.
+
 What it is: A CLI tool to test LLM behavior from YAML suites.  
 Why it matters: Replace manual prompt testing with repeatable checks in local dev and CI.  
 Run now: `pip install -e .` then `veridra run examples/basic_suite.yaml --mock`
@@ -160,6 +163,11 @@ Passed: 15
 Failed: 0
 Score: 100.0%
 ```
+
+## Veridra CI Integration
+
+For GitHub-native PR automation (action wrapper + sticky PR comments), use `veridra-ci`.
+Veridra Core remains the execution engine used by that integration.
 
 ## Core Commands
 
